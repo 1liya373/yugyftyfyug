@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>有趣的AI朋友</title>
+  <style>
+    body {
+      font-family: "Microsoft JhengHei", sans-serif;
+      background-color: #f2f2f2;
+      text-align: center;
+      padding: 30px;
+    }
+    #chatbox {
+      width: 90%;
+      max-width: 600px;
+      height: 400px;
+      overflow-y: auto;
+      margin: 0 auto 20px;
+      background: #fff;
+      border: 1px solid #ccc;
+      padding: 15px;
+      border-radius: 10px;
+    }
+    .message {
+      margin: 10px 0;
+      text-align: left;
+    }
+    .user { color: #000; }
+    .bot { color: #007BFF; font-weight: bold; }
+    input[type="text"] {
+      width: 60%;
+      padding: 10px;
+      font-size: 16px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+    button {
+      padding: 10px 15px;
+      font-size: 16px;
+      margin-left: 10px;
+      background-color: #007BFF;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🤖 有趣的 AI 朋友</h1>
+  <div id="chatbox"></div>
+
+  <input type="text" id="userInput" placeholder="輸入訊息..." />
+  <button onclick="sendMessage()">送出</button>
+
+  <script>
+    const apiKey = "你的_GEMINI_API_KEY"; // 🔑 ←←← 替換成你的金鑰
+    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+    function addMessage(sender, text, className) {
+      const chatbox = document.getElementById('chatbox');
+      const msg = document.createElement('div');
+      msg.className = `message ${className}`;
+      msg.innerHTML = `<strong>${sender}:</strong> ${text}`;
+      chatbox.appendChild(msg);
+      chatbox.scrollTop = chatbox.scrollHeight;
+    }
+
+    function sendMessage() {
+      const input = document.getElementById('userInput');
+      const userText = input.value.trim();
+      if (!userText) return;
+
+      addMessage("你", userText, "user");
+      input.value = "";
+
+      // 呼叫 Gemini API
+      fetch(apiUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          contents: [{
+            parts: [{ text: userText }]
+          }]
+        })
+      })
+      .then(res => res.json())
+      .then(data => {
+        const botReply = data?.candidates?.[0]?.content?.parts?.[0]?.text || "嗯...我也不知道該說什麼 🤔";
+        addMessage("有趣朋友", botReply, "bot");
+      })
+      .catch(err => {
+        console.error("錯誤:", err);
+        addMessage("有趣朋友", "哎呀～我暫時斷線了 🥲", "bot");
+      });
+    }
+  </script>
+
+</body>
+</html>
