@@ -2,12 +2,14 @@
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8">
-  <title>有趣的AI朋友</title>
+  <title>有趣的 AI 朋友</title>
   <style>
     body {
       font-family: "Microsoft JhengHei", sans-serif;
-      background-color: #f2f2f2;
-      text-align: center;
+      background-color: #fffbe6;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
       padding: 30px;
     }
     #chatbox {
@@ -15,68 +17,77 @@
       max-width: 600px;
       height: 400px;
       overflow-y: auto;
-      margin: 0 auto 20px;
-      background: #fff;
-      border: 1px solid #ccc;
+      border: 2px dashed #ffa07a;
+      background: #fffef2;
       padding: 15px;
-      border-radius: 10px;
+      border-radius: 12px;
+      margin-bottom: 20px;
     }
     .message {
       margin: 10px 0;
       text-align: left;
     }
-    .user { color: #000; }
-    .bot { color: #007BFF; font-weight: bold; }
+    .user { color: #333; }
+    .bot { color: #d2691e; font-weight: bold; }
     input[type="text"] {
-      width: 60%;
+      width: 70%;
       padding: 10px;
-      font-size: 16px;
-      border-radius: 5px;
+      border-radius: 6px;
       border: 1px solid #ccc;
+      font-size: 16px;
     }
     button {
       padding: 10px 15px;
       font-size: 16px;
-      margin-left: 10px;
-      background-color: #007BFF;
+      background-color: #ff7f50;
       color: white;
       border: none;
-      border-radius: 5px;
+      border-radius: 6px;
+      margin-left: 5px;
       cursor: pointer;
     }
   </style>
 </head>
 <body>
 
-  <h1>🤖 有趣的 AI 朋友</h1>
+  <h1>🤖 有趣的 AI 朋友 🤪</h1>
   <div id="chatbox"></div>
-
-  <input type="text" id="userInput" placeholder="輸入訊息..." />
+  <input type="text" id="userInput" placeholder="你想問什麼天馬行空的問題呢？" />
   <button onclick="sendMessage()">送出</button>
 
   <script>
-    const apiKey = "你的_GEMINI_API_KEY"; // 🔑 ←←← 替換成你的金鑰
-    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+    const apiKey = "在這裡填入你的_GEMINI_API_KEY";
+    const chatbox = document.getElementById("chatbox");
 
     function addMessage(sender, text, className) {
-      const chatbox = document.getElementById('chatbox');
-      const msg = document.createElement('div');
-      msg.className = `message ${className}`;
-      msg.innerHTML = `<strong>${sender}:</strong> ${text}`;
-      chatbox.appendChild(msg);
+      const message = document.createElement("div");
+      message.className = `message ${className}`;
+      message.innerHTML = `<strong>${sender}:</strong> ${text}`;
+      chatbox.appendChild(message);
       chatbox.scrollTop = chatbox.scrollHeight;
     }
 
+    function makeItFunny(text) {
+      const funnyEndings = [
+        "😂（這你能信？我都笑瘋了）",
+        "🤪不開玩笑，我可是AI界的段子手！",
+        "🐸呱～這可是知識+幽默的combo技！",
+        "🧠+🎉= 我回答起來自己都佩服自己！",
+        "🌈讓我邊跳邊回答你～"
+      ];
+      const ending = funnyEndings[Math.floor(Math.random() * funnyEndings.length)];
+      return text + " " + ending;
+    }
+
     function sendMessage() {
-      const input = document.getElementById('userInput');
+      const input = document.getElementById("userInput");
       const userText = input.value.trim();
       if (!userText) return;
 
       addMessage("你", userText, "user");
       input.value = "";
 
-      // 呼叫 Gemini API
-      fetch(apiUrl, {
+      fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -89,12 +100,13 @@
       })
       .then(res => res.json())
       .then(data => {
-        const botReply = data?.candidates?.[0]?.content?.parts?.[0]?.text || "嗯...我也不知道該說什麼 🤔";
-        addMessage("有趣朋友", botReply, "bot");
+        const aiText = data?.candidates?.[0]?.content?.parts?.[0]?.text || "呃...我好像放空了😅";
+        const funnyReply = makeItFunny(aiText);
+        addMessage("有趣朋友", funnyReply, "bot");
       })
       .catch(err => {
-        console.error("錯誤:", err);
-        addMessage("有趣朋友", "哎呀～我暫時斷線了 🥲", "bot");
+        console.error("錯誤：", err);
+        addMessage("有趣朋友", "哎呀～我被Wi-Fi妖怪抓走了👻", "bot");
       });
     }
   </script>
